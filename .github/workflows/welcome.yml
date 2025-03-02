@@ -1,15 +1,26 @@
 name: Post welcome comment
+
 on:
   pull_request:
     types: [opened]
+
 permissions:
   pull-requests: write
+
 jobs:
   build:
     name: Post welcome comment
     runs-on: ubuntu-latest
+
     steps:
-      - run: gh pr comment $PR_URL --body "Welcome to the repository!"
-        env :
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        PR_URL: ${{github.event.pull_request.html_url}}
+      - name: Set up GitHub CLI
+        run: |
+          curl -fsSL https://cli.github.com/packages/github-cli.repo | sudo tee /etc/apt/sources.list.d/github-cli.list
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EB4B2B8B7C4B24D4
+          sudo apt update
+          sudo apt install gh
+
+      - name: Post welcome comment
+        run: gh pr comment ${{ github.event.pull_request.html_url }} --body "Welcome to the repository!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
